@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Sensitive config
+config.json
+
+# RPI image build scripts (not yet public)
+rpi-image/
+CLAUDE.md
+HARDWARE.md
+.claude
+

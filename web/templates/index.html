@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pitwall</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- ── Top bar ─────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo">PITWALL</span>
+      <span class="topbar-sep">·</span>
+      <span id="tb-mode" class="tb-mode">—</span>
+      <span id="tb-fps"  class="tb-fps" >— FPS</span>
+    </div>
+    <div class="topbar-right">
+      <label class="brt-wrap">
+        <span class="tb-label">BRT</span>
+        <input type="range" id="brightness-slider" min="0" max="100" value="75">
+        <span id="brightness-val">75</span>
+      </label>
+      <button id="power-btn"   class="btn-icon" title="Toggle power">⏻</button>
+      <button id="preview-btn" class="btn-icon" title="Toggle LED preview">▣</button>
+    </div>
+  </header>
+
+  <!-- ── Layout grid ──────────────────────────────────────────────────── -->
+  <div class="layout" id="layout">
+
+    <!-- Sidebar nav -->
+    <nav class="sidebar">
+      <ul class="nav-list">
+        <li class="nav-item active" data-section="overview">OVERVIEW</li>
+        <li class="nav-item"        data-section="modules" >MODULES</li>
+        <li class="nav-item"        data-section="module-settings">MOD SETTINGS</li>
+        <li class="nav-item"        data-section="config"  >CONFIG</li>
+        <li class="nav-item"        data-section="network" >NETWORK</li>
+        <li class="nav-item"        data-section="install" >INSTALL</li>
+      </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content" id="content">
+
+      <!-- Overview ─────────────────────────────────────────────────── -->
+      <section id="section-overview" class="section active">
+        <div class="section-header">OVERVIEW</div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="stat-label">LOADING</div><div class="stat-value dim">—</div></div>
+        </div>
+        <div class="section-header mt">DEBUG — WEATHER ALERTS</div>
+        <div id="debug-tools"></div>
+      </section>
+
+      <!-- Modules ──────────────────────────────────────────────────── -->
+      <section id="section-modules" class="section">
+        <div class="section-header">MODULES</div>
+        <div class="module-grid" id="module-grid"></div>
+      </section>
+
+      <!-- Module settings ──────────────────────────────────────────── -->
+      <section id="section-module-settings" class="section">
+        <div class="section-header">MODULE SETTINGS</div>
+        <div class="form-group" style="max-width:480px; margin-bottom:20px">
+          <label class="form-label">SELECT MODULE</label>
+          <select id="mod-cfg-select" class="form-select"></select>
+        </div>
+        <div id="mod-cfg-form"></div>
+      </section>
+
+      <!-- Global config ────────────────────────────────────────────── -->
+      <section id="section-config" class="section">
+        <div class="section-header">GLOBAL CONFIG</div>
+        <div id="global-config-form"></div>
+      </section>
+
+      <!-- Network ──────────────────────────────────────────────────── -->
+      <section id="section-network" class="section">
+        <div class="section-header">NETWORK</div>
+        <div id="network-info"></div>
+      </section>
+
+      <!-- Install ──────────────────────────────────────────────────── -->
+      <section id="section-install" class="section">
+        <div class="section-header">MODULE INSTALLATION</div>
+        <div class="placeholder-card">
+          <div class="placeholder-label">COMING SOON</div>
+          <div class="placeholder-desc">
+            Drop a new module folder into <code>modules/</code> and register it
+            with <code>@register</code> — no restart required once hot-reload is
+            implemented here.
+          </div>
+          <div class="placeholder-desc" style="margin-top:8px">
+            See <code>modules/base.py</code> for the module contract.
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Preview panel ───────────────────────────────────────────────── -->
+    <aside class="preview-panel" id="preview-panel">
+      <div class="preview-header">
+        <span class="preview-title">LED PREVIEW</span>
+        <span class="preview-meta" id="preview-meta">—</span>
+      </div>
+      <div class="preview-display">
+        <img id="preview-img" src="" alt="LED panel preview">
+      </div>
+      <div class="preview-footer">
+        {{ dw }}×{{ dh }}px &nbsp;·&nbsp; 3 mm pitch &nbsp;·&nbsp;
+        {{ phys_w }}×{{ phys_h }} mm &nbsp;·&nbsp; {{ scale }}× scale ≈ 5 ft view
+      </div>
+    </aside>
+
+  </div><!-- /.layout -->
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

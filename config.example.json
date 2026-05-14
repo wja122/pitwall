@@ -1,0 +1,39 @@
+{
+  "provisioning_complete": false,
+  "wifi_ssid": "",
+  "wifi_password": "",
+  "active_module": "clock",
+  "brightness": 75,
+  "gpio_slowdown": 4,
+  "eink_port": "/dev/ttyACM0",
+  "multiviewer_host": "localhost",
+  "multiviewer_auto_switch": true,
+  "multiviewer_hold_seconds": 45,
+  "modules": {
+    "f1_timing": {
+      "fps": 25
+    },
+    "f1_countdown": {
+      "fps": 1
+    },
+    "f1_standings": {
+      "fps": 10
+    },
+    "clock": {
+      "fps": 1,
+      "api_key": "af63d506a0eb0551d8601dbbc44f40cf",
+      "location": "Pittsburgh",
+      "units": "imperial"
+    },
+    "weather": {
+      "lat": null,
+      "lon": null,
+      "units": "imperial",
+      "fps": 10
+    },
+    "nfl": {
+      "team": "CHI",
+      "fps": 25
+    }
+  }
+}
