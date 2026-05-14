@@ -21,8 +21,7 @@
     },
     "clock": {
       "fps": 1,
-      "api_key": "af63d506a0eb0551d8601dbbc44f40cf",
-      "location": "Pittsburgh",
+      "location": "",
       "units": "imperial"
     },
     "weather": {
