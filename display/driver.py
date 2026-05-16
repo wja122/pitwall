@@ -109,12 +109,13 @@ class DisplayDriver:
         options = RGBMatrixOptions()  # type: ignore[name-defined]
         options.rows = 64
         options.cols = 64
-        options.chain_length = 6
-        options.parallel = 1
-        options.hardware_mapping = 'regular'
+        options.chain_length = 3
+        options.parallel = 2
+        options.hardware_mapping = 'adafruit-hat'
+        options.pixel_mapper_config = 'V-mapper'
         options.scan_mode = 1
         options.row_address_type = 1
-        options.disable_hardware_pulsing = True
+        options.disable_hardware_pulsing = False
         options.panel_type = 'FM6126A'
         options.gpio_slowdown = self._config.get('gpio_slowdown', 4)
         options.brightness = self._brightness
