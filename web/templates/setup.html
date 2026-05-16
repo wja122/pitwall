@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pitwall — Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap">
+  <style>
+    :root {
+      --bg:       #0a0a0a;
+      --surface:  #111111;
+      --surf-2:   #161616;
+      --surf-3:   #1c1c1c;
+      --border:   #1e1e1e;
+      --border-2: #2a2a2a;
+      --text:     #e0e0e0;
+      --text-2:   #888888;
+      --text-3:   #464646;
+      --accent:   #e8002d;
+      --green:    #00c832;
+      --font:     'Source Sans 3', sans-serif;
+      --mono:     'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────────── */
+
+    .setup-header {
+      height: 44px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .header-sep { color: var(--text-3); }
+
+    .header-label {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      color: var(--text-2);
+      text-transform: uppercase;
+    }
+
+    .skip-link {
+      font-size: 12px;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.15s;
+    }
+
+    .skip-link:hover { color: var(--text); }
+
+    /* ── Main content ─────────────────────────────────────────────────── */
+
+    .setup-main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Section headings ─────────────────────────────────────────────── */
+
+    .section-heading {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-heading.mt { margin-top: 40px; }
+
+    /* ── Module cards ─────────────────────────────────────────────────── */
+
+    .module-list { display: flex; flex-direction: column; gap: 2px; }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .module-card.has-fields { border-left: 2px solid var(--border-2); }
+    .module-card.has-fields.configured { border-left-color: var(--green); }
+    .module-card.has-fields.needs-setup { border-left-color: var(--accent); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      cursor: default;
+    }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      flex: 1;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    .card-badge {
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--mono);
+      letter-spacing: 1px;
+      padding: 3px 7px;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-ready   { background: #0d2a14; color: var(--green); }
+    .badge-setup   { background: #2a0d0d; color: var(--accent); }
+    .badge-done    { background: #0d2a14; color: var(--green); }
+
+    /* ── Card form fields ─────────────────────────────────────────────── */
+
+    .card-fields {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-top: 14px;
+    }
+
+    .field-row { display: flex; flex-direction: column; gap: 5px; }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-2);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .required-star { color: var(--accent); }
+
+    .field-input, .field-select {
+      background: var(--surf-2);
+      border: 1px solid var(--border-2);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 8px 10px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus, .field-select:focus {
+      border-color: var(--text-3);
+    }
+
+    .field-input.error { border-color: var(--accent); }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+
+    /* ── Starting module ──────────────────────────────────────────────── */
+
+    .start-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    /* ── Save bar ─────────────────────────────────────────────────────── */
+
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border-2);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .save-status {
+      font-size: 12px;
+      color: var(--text-2);
+      font-family: var(--mono);
+    }
+
+    .save-status.error { color: var(--accent); }
+    .save-status.ok    { color: var(--green); }
+
+    .btn-save {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 3px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 28px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-save:hover    { opacity: 0.85; }
+    .btn-save:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Select arrow ─────────────────────────────────────────────────── */
+
+    .select-wrap { position: relative; }
+
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-2);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .select-wrap .field-select { padding-right: 28px; }
+  </style>
+</head>
+<body>
+
+  <header class="setup-header">
+    <div class="header-left">
+      <span class="logo">Pitwall</span>
+      <span class="header-sep">·</span>
+      <span class="header-label">Setup</span>
+    </div>
+    <a class="skip-link" href="/">Skip to dashboard →</a>
+  </header>
+
+  <main class="setup-main">
+    <div class="section-heading">Configure Modules</div>
+    <div class="module-list" id="module-list">
+      <div style="color:var(--text-3); font-size:13px;">Loading…</div>
+    </div>
+
+    <div class="section-heading mt">Starting Module</div>
+    <p style="font-size:12px; color:var(--text-2); margin-bottom:12px;">
+      Which module should Pitwall display when it boots?
+    </p>
+    <div class="select-wrap" style="max-width:320px;">
+      <select class="field-select" id="active-module"></select>
+    </div>
+  </main>
+
+  <div class="save-bar">
+    <span class="save-status" id="save-status"></span>
+    <button class="btn-save" id="save-btn" onclick="save()">Save and Launch</button>
+  </div>
+
+  <script>
+    'use strict';
+
+    let _modules = [];
+
+    // ── Load ───────────────────────────────────────────────────────────────
+
+    async function load() {
+      const data = await fetch('/api/setup/fields').then(r => r.json());
+      _modules = data.modules;
+      renderModules(data.modules, data.active_module);
+    }
+
+    function renderModules(modules, currentActive) {
+      const list = document.getElementById('module-list');
+      const sel  = document.getElementById('active-module');
+
+      list.innerHTML = '';
+      sel.innerHTML  = '';
+
+      for (const mod of modules) {
+        list.appendChild(buildCard(mod));
+
+        const opt = document.createElement('option');
+        opt.value       = mod.name;
+        opt.textContent = formatName(mod.name);
+        if (mod.name === currentActive) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    function buildCard(mod) {
+      const hasFields = mod.fields.length > 0;
+      const current   = mod.current_config || {};
+
+      const card = document.createElement('div');
+      card.className = 'module-card' + (hasFields ? ' has-fields' : '');
+
+      // Determine badge
+      let badgeClass = 'badge-ready';
+      let badgeText  = 'Ready';
+      if (hasFields) {
+        const required = mod.fields.filter(f => f.required);
+        const allFilled = required.every(f => current[f.key] != null && current[f.key] !== '');
+        badgeClass = allFilled ? 'badge-done'  : 'badge-setup';
+        badgeText  = allFilled ? 'Configured'  : 'Needs setup';
+        card.classList.add(allFilled ? 'configured' : 'needs-setup');
+      }
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      header.innerHTML = `
+        <div style="flex:1">
+          <div class="card-name">${formatName(mod.name)}</div>
+          <div class="card-desc">${mod.description}</div>
+        </div>
+        <span class="card-badge ${badgeClass}">${badgeText}</span>
+      `;
+      card.appendChild(header);
+
+      if (hasFields) {
+        const fields = document.createElement('div');
+        fields.className = 'card-fields';
+        for (const f of mod.fields) {
+          fields.appendChild(buildField(mod.name, f, current[f.key]));
+        }
+        card.appendChild(fields);
+      }
+
+      return card;
+    }
+
+    function buildField(modName, field, currentValue) {
+      const row = document.createElement('div');
+      row.className = 'field-row';
+
+      const star = field.required ? '<span class="required-star">*</span>' : '';
+      const label = document.createElement('label');
+      label.className = 'field-label';
+      label.innerHTML = `${field.label} ${star}`;
+      label.htmlFor   = `field-${modName}-${field.key}`;
+      row.appendChild(label);
+
+      let input;
+
+      if (field.type === 'select') {
+        const wrap = document.createElement('div');
+        wrap.className = 'select-wrap';
+        input = document.createElement('select');
+        input.className = 'field-select';
+        for (const opt of (field.options || [])) {
+          const o = document.createElement('option');
+          o.value       = opt.value;
+          o.textContent = opt.label;
+          if ((currentValue ?? field.default) === opt.value) o.selected = true;
+          input.appendChild(o);
+        }
+        wrap.appendChild(input);
+        row.appendChild(wrap);
+      } else {
+        input = document.createElement('input');
+        input.type        = field.type === 'password' ? 'password' : (field.type === 'number' ? 'number' : 'text');
+        input.className   = 'field-input';
+        input.placeholder = field.placeholder || '';
+        if (field.step)         input.step         = field.step;
+        if (currentValue != null && currentValue !== '') input.value = currentValue;
+        row.appendChild(input);
+      }
+
+      input.id = `field-${modName}-${field.key}`;
+
+      if (field.hint) {
+        const hint = document.createElement('div');
+        hint.className   = 'field-hint';
+        hint.textContent = field.hint;
+        row.appendChild(hint);
+      }
+
+      return row;
+    }
+
+    // ── Save ───────────────────────────────────────────────────────────────
+
+    async function save() {
+      const btn    = document.getElementById('save-btn');
+      const status = document.getElementById('save-status');
+
+      // Validate required fields
+      const errors = [];
+      for (const mod of _modules) {
+        for (const f of mod.fields) {
+          if (!f.required) continue;
+          const el = document.getElementById(`field-${mod.name}-${f.key}`);
+          if (!el || !el.value.trim()) {
+            errors.push(`${formatName(mod.name)}: ${f.label} is required`);
+            if (el) el.classList.add('error');
+          } else {
+            if (el) el.classList.remove('error');
+          }
+        }
+      }
+
+      if (errors.length) {
+        status.className   = 'save-status error';
+        status.textContent = errors[0];
+        return;
+      }
+
+      btn.disabled   = true;
+      status.className   = 'save-status';
+      status.textContent = 'Saving…';
+
+      // Collect values
+      const module_configs = {};
+      for (const mod of _modules) {
+        const cfg = {};
+        for (const f of mod.fields) {
+          const el = document.getElementById(`field-${mod.name}-${f.key}`);
+          if (el && el.value.trim() !== '') {
+            cfg[f.key] = f.type === 'number' ? parseFloat(el.value) : el.value.trim();
+          }
+        }
+        if (Object.keys(cfg).length) module_configs[mod.name] = cfg;
+      }
+
+      const active_module = document.getElementById('active-module').value;
+
+      try {
+        const res = await fetch('/api/setup/complete', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ active_module, module_configs }),
+        });
+        const body = await res.json();
+
+        if (body.ok) {
+          status.className   = 'save-status ok';
+          status.textContent = 'Saved — launching…';
+          setTimeout(() => { window.location.href = '/'; }, 800);
+        } else {
+          throw new Error(body.error || 'Unknown error');
+        }
+      } catch (e) {
+        status.className   = 'save-status error';
+        status.textContent = e.message;
+        btn.disabled = false;
+      }
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    function formatName(name) {
+      return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    load();
+  </script>
+
+</body>
+</html>

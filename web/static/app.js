@@ -43,6 +43,7 @@ async function pollStatus() {
   document.getElementById('tb-fps').textContent  = s.fps + ' FPS';
 
   document.getElementById('power-btn').classList.toggle('active', !s.power);
+  document.getElementById('preview-btn').hidden = !s.stub;
   document.getElementById('preview-meta').textContent =
     s.mode.toUpperCase() + ' · ' + s.fps + ' FPS';
 
@@ -190,34 +191,45 @@ function renderModuleConfigForm(name, cfg) {
   const container = document.getElementById('mod-cfg-form');
   container.innerHTML = '';
 
-  const form = document.createElement('div');
+  const schema = cfg.__schema__ || {};
+  const form   = document.createElement('div');
   form.className = 'config-form';
 
   Object.entries(cfg).forEach(([key, val]) => {
+    if (key === '__schema__') return;
+    const fieldSchema = schema[key] || {};
     const group = document.createElement('div');
     group.className = 'form-group';
 
     const label = document.createElement('label');
-    label.className = 'form-label';
-    label.textContent = key.toUpperCase().replace(/_/g, ' ');
+    label.className   = 'form-label';
+    label.textContent = (fieldSchema.label || key).toUpperCase().replace(/_/g, ' ');
+    label.htmlFor     = 'mcfg-' + key;
     group.appendChild(label);
 
-    if (typeof val === 'boolean') {
+    if (fieldSchema.type === 'select') {
+      const sel = document.createElement('select');
+      sel.id        = 'mcfg-' + key;
+      sel.className = 'form-select';
+      (fieldSchema.options || []).forEach(opt => {
+        const o = document.createElement('option');
+        o.value       = opt.value;
+        o.textContent = opt.label;
+        if (opt.value === val) o.selected = true;
+        sel.appendChild(o);
+      });
+      group.appendChild(sel);
+    } else if (typeof val === 'boolean') {
       const wrap = document.createElement('label');
       wrap.className = 'form-toggle';
-
       const cb = document.createElement('input');
       cb.type    = 'checkbox';
       cb.checked = val;
       cb.id      = 'mcfg-' + key;
-
       const lbl = document.createElement('span');
-      lbl.className = 'form-toggle-lbl';
+      lbl.className   = 'form-toggle-lbl';
       lbl.textContent = val ? 'enabled' : 'disabled';
-      cb.addEventListener('change', () => {
-        lbl.textContent = cb.checked ? 'enabled' : 'disabled';
-      });
-
+      cb.addEventListener('change', () => { lbl.textContent = cb.checked ? 'enabled' : 'disabled'; });
       wrap.appendChild(cb);
       wrap.appendChild(lbl);
       group.appendChild(wrap);
@@ -242,11 +254,14 @@ function renderModuleConfigForm(name, cfg) {
   const btn = makeBtn('SAVE', async () => {
     const data = {};
     Object.entries(cfg).forEach(([key, orig]) => {
+      if (key === '__schema__') return;
       const el = document.getElementById('mcfg-' + key);
       if (!el) return;
-      if (typeof orig === 'boolean')      data[key] = el.checked;
-      else if (typeof orig === 'number')  data[key] = Number.isInteger(orig) ? parseInt(el.value) : parseFloat(el.value);
-      else                                data[key] = el.value;
+      const fieldSchema = schema[key] || {};
+      if (fieldSchema.type === 'select') data[key] = el.value;
+      else if (typeof orig === 'boolean')     data[key] = el.checked;
+      else if (typeof orig === 'number')      data[key] = Number.isInteger(orig) ? parseInt(el.value) : parseFloat(el.value);
+      else                                    data[key] = el.value;
     });
     await apiPost('/api/module/' + name + '/config', data);
     flashSaved(btn);

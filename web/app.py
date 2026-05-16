@@ -159,6 +159,8 @@ def _module_cfg(config: dict[str, Any], name: str) -> dict[str, Any]:
     cfg = dict(config.get('modules', {}).get(name, {}))
     if name == 'f1_timing' and 'host' not in cfg:
         cfg['host'] = config.get('multiviewer_host', 'localhost')
+    if name == 'home':
+        cfg['weather_cfg'] = config.get('modules', {}).get('weather', {})
     return cfg
 
 
@@ -183,7 +185,7 @@ def create_app(
     app = Flask(__name__)
 
     # ------------------------------------------------------------------
-    # Index + preview stream
+    # Index + setup wizard + preview stream
     # ------------------------------------------------------------------
 
     @app.route('/')
@@ -196,27 +198,73 @@ def create_app(
             scale=_SCALE,
         )
 
-    @app.route('/preview/stream')
-    def preview_stream() -> Response:
-        """MJPEG stream with LED panel physics simulation."""
-        def generate():
-            while True:
-                raw = driver.get_preview_frame()
-                img = _make_led_frame(raw)
-                buf = io.BytesIO()
-                img.save(buf, format='JPEG', quality=88)
-                yield (
-                    b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n'
-                    + buf.getvalue()
-                    + b'\r\n'
-                )
-                time.sleep(1.0 / _STREAM_FPS)
+    @app.route('/setup')
+    def setup_page() -> str:
+        return render_template('setup.html')
 
-        return Response(
-            generate(),
-            mimetype='multipart/x-mixed-replace; boundary=frame',
-        )
+    @app.route('/api/setup/fields')
+    def api_setup_fields() -> Response:
+        modules_data = [
+            {
+                'name':           name,
+                'description':    cls.description,
+                'fields':         cls.setup_fields(),
+                'current_config': config.get('modules', {}).get(name, {}),
+            }
+            for name, cls in sorted(registry.all_modules().items())
+        ]
+        return jsonify({
+            'setup_complete': config.get('setup_complete', False),
+            'active_module':  config.get('active_module', 'clock'),
+            'modules':        modules_data,
+        })
+
+    @app.route('/api/setup/complete', methods=['POST'])
+    def api_setup_complete() -> Response:
+        from modules.setup.module import SetupModule  # local import avoids circular
+        data = request.get_json(force=True) or {}
+
+        for mod_name, mod_cfg in (data.get('module_configs') or {}).items():
+            if registry.get(mod_name) is None:
+                continue
+            config.setdefault('modules', {})[mod_name] = {
+                **config.get('modules', {}).get(mod_name, {}),
+                **{k: v for k, v in mod_cfg.items() if v not in (None, '')},
+            }
+
+        active = data.get('active_module') or config.get('active_module', 'clock')
+        module_cls = registry.get(active)
+        if module_cls is not None:
+            config['active_module'] = active
+            driver.set_module(module_cls(_module_cfg(config, active)))
+
+        config['setup_complete'] = True
+        config['show_setup_qr']  = False
+        _save_config(config, config_path)
+        return jsonify({'ok': True, 'active_module': config['active_module']})
+
+    if driver.is_stub:
+        @app.route('/preview/stream')
+        def preview_stream() -> Response:
+            """MJPEG stream with LED panel physics simulation. Stub mode only."""
+            def generate():
+                while True:
+                    raw = driver.get_preview_frame()
+                    img = _make_led_frame(raw)
+                    buf = io.BytesIO()
+                    img.save(buf, format='JPEG', quality=88)
+                    yield (
+                        b'--frame\r\n'
+                        b'Content-Type: image/jpeg\r\n\r\n'
+                        + buf.getvalue()
+                        + b'\r\n'
+                    )
+                    time.sleep(1.0 / _STREAM_FPS)
+
+            return Response(
+                generate(),
+                mimetype='multipart/x-mixed-replace; boundary=frame',
+            )
 
     # ------------------------------------------------------------------
     # Status + system
@@ -238,8 +286,20 @@ def create_app(
         return jsonify(_get_system_stats())
 
     # ------------------------------------------------------------------
-    # Modules
+    # Modules + widgets
     # ------------------------------------------------------------------
+
+    @app.route('/api/widgets')
+    def api_widgets() -> Response:
+        from widgets.registry import all_widgets
+        return jsonify([
+            {
+                'name':              name,
+                'description':       cls.description,
+                'supported_heights': cls.supported_heights,
+            }
+            for name, cls in sorted(all_widgets().items())
+        ])
 
     @app.route('/api/modules')
     def api_modules() -> Response:

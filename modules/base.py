@@ -40,3 +40,17 @@ class BaseModule(ABC):
     @abstractmethod
     def get_status(self) -> dict[str, Any]:
         """Return health/status dict for the web UI dashboard."""
+
+    @classmethod
+    def setup_fields(cls) -> list[dict[str, Any]]:
+        """Return field descriptors for the setup wizard.
+
+        Each dict has: key, label, type (text|password|number|select|toggle),
+        required (bool), and optionally: placeholder, hint, default,
+        options (list of {value, label} for select type).
+
+        Override in subclasses to declare configuration that must be
+        collected before a module can function. Return [] if this module
+        works out of the box.
+        """
+        return []

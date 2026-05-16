@@ -339,6 +339,39 @@ class WeatherModule(BaseModule):
     # Config / status
     # ------------------------------------------------------------------
 
+    @classmethod
+    def setup_fields(cls) -> list[dict]:
+        return [
+            {
+                'key':         'lat',
+                'label':       'Latitude',
+                'type':        'number',
+                'required':    True,
+                'placeholder': '40.4406',
+                'hint':        'Decimal degrees — find yours at maps.google.com',
+                'step':        'any',
+            },
+            {
+                'key':         'lon',
+                'label':       'Longitude',
+                'type':        'number',
+                'required':    True,
+                'placeholder': '-79.9959',
+                'step':        'any',
+            },
+            {
+                'key':      'units',
+                'label':    'Units',
+                'type':     'select',
+                'required': False,
+                'default':  'imperial',
+                'options':  [
+                    {'value': 'imperial', 'label': 'Imperial (°F, mph)'},
+                    {'value': 'metric',   'label': 'Metric (°C, km/h)'},
+                ],
+            },
+        ]
+
     def get_config(self) -> dict[str, Any]:
         return {
             'lat':   self._lat,

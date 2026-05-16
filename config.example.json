@@ -1,5 +1,7 @@
 {
   "provisioning_complete": false,
+  "setup_complete": false,
+  "show_setup_qr": false,
   "wifi_ssid": "",
   "wifi_password": "",
   "active_module": "clock",
@@ -10,6 +12,13 @@
   "multiviewer_auto_switch": true,
   "multiviewer_hold_seconds": 45,
   "modules": {
+    "home": {
+      "clock_mode": "tz_utc",
+      "layout": "three_tall",
+      "slot_0": "weather",
+      "slot_1": "f1_countdown",
+      "fps": 1
+    },
     "f1_timing": {
       "fps": 25
     },

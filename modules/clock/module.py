@@ -316,6 +316,38 @@ class ClockModule(BaseModule):
     # Config / status
     # ------------------------------------------------------------------
 
+    @classmethod
+    def setup_fields(cls) -> list[dict]:
+        return [
+            {
+                'key':         'api_key',
+                'label':       'OpenWeatherMap API Key',
+                'type':        'password',
+                'required':    False,
+                'placeholder': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                'hint':        'Optional — shows live weather under the clock. Free tier at openweathermap.org',
+            },
+            {
+                'key':         'location',
+                'label':       'Location',
+                'type':        'text',
+                'required':    False,
+                'placeholder': 'Pittsburgh, PA',
+                'hint':        'City name for clock weather display',
+            },
+            {
+                'key':      'units',
+                'label':    'Units',
+                'type':     'select',
+                'required': False,
+                'default':  'imperial',
+                'options':  [
+                    {'value': 'imperial', 'label': 'Imperial (°F)'},
+                    {'value': 'metric',   'label': 'Metric (°C)'},
+                ],
+            },
+        ]
+
     def get_config(self) -> dict[str, Any]:
         return {
             'api_key': self._api_key,
