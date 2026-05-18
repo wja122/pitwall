@@ -75,7 +75,7 @@ class SetupModule(BaseModule):
             return
         self._ip = ip
         if ip:
-            self._url = f'http://{ip}/setup'
+            self._url = f'http://{ip}:8080/setup'
             self._matrix = _build_matrix(self._url)
         else:
             self._url = None
