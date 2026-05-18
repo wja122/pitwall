@@ -182,7 +182,12 @@ def create_app(
                      stays in sync without a restart.
         config_path: Absolute path to config.json for persistence.
     """
-    app = Flask(__name__)
+    _web_dir = Path(__file__).parent
+    app = Flask(
+        __name__,
+        template_folder=str(_web_dir / 'templates'),
+        static_folder=str(_web_dir / 'static'),
+    )
 
     # ------------------------------------------------------------------
     # Index + setup wizard + preview stream
