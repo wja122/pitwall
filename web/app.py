@@ -49,6 +49,8 @@ import numpy as np
 from flask import Flask, Response, jsonify, render_template, request
 from PIL import Image, ImageFilter
 
+_WEB_DIR = Path(__file__).resolve().parent
+
 from display.driver import DisplayDriver, HEIGHT, WIDTH
 from modules import registry
 from modules.weather.module import WeatherAlert, WeatherModule
@@ -182,11 +184,10 @@ def create_app(
                      stays in sync without a restart.
         config_path: Absolute path to config.json for persistence.
     """
-    _web_dir = Path(__file__).parent
     app = Flask(
         __name__,
-        template_folder=str(_web_dir / 'templates'),
-        static_folder=str(_web_dir / 'static'),
+        template_folder=str(_WEB_DIR / 'templates'),
+        static_folder=str(_WEB_DIR / 'static'),
     )
 
     # ------------------------------------------------------------------
