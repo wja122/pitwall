@@ -119,6 +119,7 @@ class DisplayDriver:
         options.panel_type = ''
         options.gpio_slowdown = self._config.get('gpio_slowdown', 6)
         options.brightness = self._brightness
+        options.drop_privileges = 0
         return RGBMatrix(options=options)  # type: ignore[name-defined]
 
     # ------------------------------------------------------------------

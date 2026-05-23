@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import re
 import threading
+import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Optional
 
 import requests
@@ -19,6 +21,7 @@ _GQL_QUERY = """{
     TrackStatus
     RaceControlMessages
     SessionStatus
+    ExtrapolatedClock
   }
 }"""
 
@@ -66,6 +69,19 @@ class TimingState:
     total_laps: int
     track_status: str    # GREEN | YELLOW | SC | SC_ENDING | VSC | VSC_ENDING | RED
     drivers: list[DriverRow]
+    # Session clock — set when MultiViewer is extrapolating (clock is ticking);
+    # the renderer computes live remaining from this so countdown stays smooth
+    # between 500ms polls. None when the clock is stopped/paused.
+    session_end_ts: Optional[float] = None
+    # Frozen clock value (HH:MM:SS or MM:SS) when not extrapolating — e.g. red
+    # flag, session ended. Empty string when there is no session clock at all.
+    time_remaining_frozen: str = ''
+
+    def timer_display(self) -> str:
+        """Live HH:MM:SS / MM:SS string, or '' if no session clock available."""
+        if self.session_end_ts is not None:
+            return _format_hms(self.session_end_ts - time.time())
+        return self.time_remaining_frozen
 
 
 def _parse_color(hex_str: str) -> tuple[int, int, int]:
@@ -76,6 +92,42 @@ def _parse_color(hex_str: str) -> tuple[int, int, int]:
         return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
     except ValueError:
         return (180, 180, 180)
+
+
+def _parse_hms(s: str) -> Optional[float]:
+    """Parse 'HH:MM:SS' or 'MM:SS' into seconds. Returns None on failure."""
+    if not s:
+        return None
+    parts = s.split(':')
+    try:
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + float(parts[1])
+    except ValueError:
+        return None
+    return None
+
+
+def _parse_utc(s: str) -> Optional[float]:
+    """Parse an ISO 8601 UTC timestamp into an epoch second. None on failure."""
+    if not s:
+        return None
+    try:
+        if s.endswith('Z'):
+            s = s[:-1] + '+00:00'
+        return datetime.fromisoformat(s).timestamp()
+    except ValueError:
+        return None
+
+
+def _format_hms(seconds: float) -> str:
+    secs = max(0, int(seconds))
+    h, rem = divmod(secs, 3600)
+    m, s   = divmod(rem, 60)
+    if h > 0:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m:02d}:{s:02d}"
 
 
 def _parse_sector(s: dict) -> SectorState:
@@ -178,6 +230,26 @@ class F1MVClient:
         ts_code = str((raw.get('TrackStatus') or {}).get('Status', '1'))
         track_status = _TRACK_STATUS_MAP.get(ts_code, 'GREEN')
 
+        # ── Session clock ─────────────────────────────────────────────
+        # ExtrapolatedClock.Remaining is HH:MM:SS as of ExtrapolatedClock.Utc.
+        # When Extrapolating is true the clock is running, so anchor an absolute
+        # end timestamp and let the renderer tick down off wall time — the
+        # 500ms poll cadence would otherwise stutter the seconds digit.
+        ec = raw.get('ExtrapolatedClock') or {}
+        remaining_str  = ec.get('Remaining', '')
+        extrapolating  = bool(ec.get('Extrapolating'))
+        remaining_secs = _parse_hms(remaining_str)
+        anchor_ts      = _parse_utc(ec.get('Utc', ''))
+
+        session_end_ts: Optional[float] = None
+        time_remaining_frozen = ''
+        if remaining_secs is not None:
+            if extrapolating:
+                base = anchor_ts if anchor_ts is not None else time.time()
+                session_end_ts = base + remaining_secs
+            else:
+                time_remaining_frozen = _format_hms(remaining_secs)
+
         # Process race control messages (SC ending, investigations, penalties)
         all_msgs = (raw.get('RaceControlMessages') or {}).get('Messages', [])
         self._process_rcms(all_msgs)
@@ -264,4 +336,6 @@ class F1MVClient:
             total_laps=total_laps,
             track_status=track_status,
             drivers=rows,
+            session_end_ts=session_end_ts,
+            time_remaining_frozen=time_remaining_frozen,
         )

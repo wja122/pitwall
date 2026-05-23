@@ -113,6 +113,10 @@ class F1TimingRenderer:
         if state.total_laps > 0:
             lap_str = f"LAP {state.current_lap} / {state.total_laps}"
             draw_text_centered(canvas, F35, WIDTH // 2, 9, 140, 140, 140, lap_str)
+        else:
+            timer_str = state.timer_display()
+            if timer_str:
+                draw_text_centered(canvas, F35, WIDTH // 2, 9, 140, 140, 140, timer_str)
 
     # ── Flag bar ──────────────────────────────────────────────────────────────
 

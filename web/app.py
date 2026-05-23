@@ -190,6 +190,8 @@ def create_app(
         static_folder=str(_WEB_DIR / 'static'),
     )
 
+    print(f"[DEBUG] Template_folder = {str(_WEB_DIR / 'templates')}")
+
     # ------------------------------------------------------------------
     # Index + setup wizard + preview stream
     # ------------------------------------------------------------------
